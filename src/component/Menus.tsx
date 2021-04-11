@@ -1,8 +1,12 @@
 import React, {useState} from "react";
 import {Grid, Sidebar, Icon, Button} from "semantic-ui-react";
+import Location from "./Location";
+import Places from "./Places";
 
 export default function Menus(props?: { children: any }) {
     const [sideBarVisible, setSideBarVisible] = useState<boolean>(true);
+
+
 
     return (
         <div>
@@ -15,8 +19,10 @@ export default function Menus(props?: { children: any }) {
                     width={"wide"}
                 >
                     <Grid celled padded style={{width: '100%'}}>
-                        <Grid.Row>Locatie: ?</Grid.Row>
-                        <Grid.Row>SearchBar</Grid.Row>
+                        <Grid.Row>
+                            <div><Location/></div>
+                        </Grid.Row>
+                        <Grid.Row><Places/></Grid.Row>
                         <Grid.Row>Shop</Grid.Row>
                         <Grid.Row>test</Grid.Row>
                         <Grid.Row>Suggestie</Grid.Row>
