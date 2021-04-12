@@ -9,5 +9,3 @@ export function axiosGetGeoCode(lat: number, lng: number): Promise<AxiosResponse
     const latlng = `${lat},${lng}`;
     return axios.get(url, {params: {latlng: latlng, key: getKey()}})
 }
-
-

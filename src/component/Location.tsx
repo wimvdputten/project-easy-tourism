@@ -3,27 +3,31 @@ import {Input} from "semantic-ui-react";
 import {axiosGetGeoCode} from "../api/axios";
 import {StandaloneSearchBox} from '@react-google-maps/api';
 
-export default function Location() {
-    const [userPosition, setUserPosition] = useState<{ lat: number, lng: number } | null>(null);
-    const [geoCode, setGeoCode] = useState<string | null>(null);
+export default function Location(props: { onLocationChange: (geoCode: string) => void }) {
+    const [geoCode, setGeoCode] = useState<string>('');
+    const [loading, setLoading] = useState(true);
 
     React.useEffect(() => {
         navigator?.geolocation?.getCurrentPosition((pos) => {
             axiosGetGeoCode(pos.coords.latitude, pos.coords.longitude).then((result) => {
                 if (result.data?.results?.length > 0) {
+                    setLoading(false);
                     setGeoCode(result.data.results[0].address_components[2].short_name);
-                    setUserPosition({lat: pos.coords.latitude, lng: pos.coords.longitude})
                 } else {
+                    setLoading(false);
                     setGeoCode('');
                 }
             }).catch((res) => {
+                setLoading(false);
                 setGeoCode('');
             });
         });
-    }, [])
+    }, []);
 
+    React.useEffect(() => {
+        props?.onLocationChange(geoCode);
+    }, [geoCode])
 
-    //Change to input field
     return (
         <div style={{padding: '15px'}}>
             <h3>Location</h3>
@@ -36,7 +40,7 @@ export default function Location() {
                     icon='location arrow'
                     iconPosition='left'
                     placeholder='Location...'
-                    loading={geoCode === null}
+                    loading={loading}
                 />
             </StandaloneSearchBox>
         </div>

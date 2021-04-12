@@ -3,14 +3,15 @@ import {Grid, Sidebar, Icon, Button} from "semantic-ui-react";
 import Location from "./Location";
 import Places from "./Places";
 
-export default function Menus(props?: { children: any }) {
+export default function Menus(props: {
+    children: any, resultCallback(results: google.maps.places.PlaceResult[] | null): void;
+}) {
     const [sideBarVisible, setSideBarVisible] = useState<boolean>(true);
-
+    const [location, setLocation] = useState<string>('');
 
 
     return (
         <div>
-
             <Sidebar.Pushable>
                 <Sidebar
                     animation='push'
@@ -20,9 +21,9 @@ export default function Menus(props?: { children: any }) {
                 >
                     <Grid celled padded style={{width: '100%'}}>
                         <Grid.Row>
-                            <div><Location/></div>
+                            <div><Location onLocationChange={setLocation}/></div>
                         </Grid.Row>
-                        <Grid.Row><Places/></Grid.Row>
+                        <Grid.Row><Places location={location} resultCallback={props.resultCallback}/></Grid.Row>
                         <Grid.Row>Shop</Grid.Row>
                         <Grid.Row>test</Grid.Row>
                         <Grid.Row>Suggestie</Grid.Row>
