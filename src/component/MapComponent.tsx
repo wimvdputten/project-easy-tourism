@@ -1,8 +1,7 @@
 import React, {useState} from 'react'
-import {GoogleMap, Marker} from '@react-google-maps/api';
+import {DirectionsRenderer, GoogleMap, Marker} from '@react-google-maps/api';
 import {Button, Card, Modal, Image, List, Grid, Checkbox, Label, Header} from "semantic-ui-react";
 import arrayMove from "array-move";
-import ts from "typescript/lib/tsserverlibrary";
 
 
 const containerStyle = {
@@ -16,7 +15,7 @@ function MapComponent(props: { places: google.maps.places.PlaceResult[] | null }
     const [timelineItems, setTimelineItems] = useState<google.maps.places.PlaceResult[]>([]);
     const [startItem, setStartItem] = useState<string | undefined>(undefined);
     const [distanceItems, setDistanceItems] = useState<any[]>([]);
-
+    const [directions, setDirections] = useState<google.maps.DirectionsResult | null>(null);
 
     React.useEffect(() => {
         if (props?.places) {
@@ -256,6 +255,39 @@ function MapComponent(props: { places: google.maps.places.PlaceResult[] | null }
         });
     }
 
+    async function getDirections() {
+        const DirectionsService = new google.maps.DirectionsService();
+        const origin = timelineItems[0]?.geometry?.location ? timelineItems[0].geometry.location : null;
+        const destinationItem = timelineItems[timelineItems.length - 1];
+        const destination = destinationItem?.geometry?.location ? destinationItem.geometry.location : null;
+        const waypoints: any[] = [];
+
+        for (let i = 1; i < timelineItems.length; i++) {
+            if (i === timelineItems.length - 1) {
+                continue;
+            }
+            const item = timelineItems[i];
+            if (item?.geometry?.location) {
+                const waypoint = { stopover: true, location : {lat: item.geometry.location.lat(), lng: item.geometry.location.lng()}}
+                waypoints.push(waypoint);
+            }
+        }
+
+        if (origin && destination) {
+            DirectionsService.route({
+                origin: origin,
+                destination: destination,
+                waypoints: waypoints,
+                travelMode: google.maps.TravelMode.WALKING,
+            }, (result, status) => {
+                if (status === google.maps.DirectionsStatus.OK) {
+                    setDirections(result);
+                } else {
+                    console.error(`error fetching directions ${result}`);
+                }
+            });
+        }
+    }
 
     return (
         <div>
@@ -266,11 +298,14 @@ function MapComponent(props: { places: google.maps.places.PlaceResult[] | null }
                 zoom={12}
             >
                 {loadMarkers()}
+                {directions && <DirectionsRenderer directions={directions}/>}
+
                 <></>
             </GoogleMap>
             <div style={{marginLeft: '50px'}}>
                 <h3>Timeline</h3>
                 <Button onClick={() => sortItems()}>Sort timeline</Button>
+                <Button onClick={() => getDirections()}>Get directions</Button>
                 <span>{' '}</span>
                 <Grid columns={'equal'}>
                     <Grid.Row stretched>
