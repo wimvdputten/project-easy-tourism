@@ -10,13 +10,24 @@ const containerStyle = {
     height: '800px'
 };
 
-function MapComponent(props: { places: google.maps.places.PlaceResult[] | null }) {
+function MapComponent(props: { places: google.maps.places.PlaceResult[] | null, timeCallBack(time: number): void; }) {
     const [userPosition, setUserPosition] = useState<{ lat: number, lng: number } | null>(null);
     const [modalStatus, setModalStatus] = useState(false);
     const [timelineItems, setTimelineItems] = useState<google.maps.places.PlaceResult[]>([]);
     const [startItem, setStartItem] = useState<string | undefined>(undefined);
     const [distanceItems, setDistanceItems] = useState<any[]>([]);
     const [directions, setDirections] = useState<google.maps.DirectionsResult | null>(null);
+
+    React.useEffect(() => {
+        let timeSpent = 0;
+        const averageTimeSpent = 1500;
+
+        for (const item of distanceItems) {
+            timeSpent += item.duration.value;
+            timeSpent += averageTimeSpent;
+        }
+        props.timeCallBack(timeSpent);
+    }, [distanceItems])
 
     React.useEffect(() => {
         if (props?.places) {

@@ -2,9 +2,10 @@ import React, {useState} from "react";
 import {Grid, Sidebar, Icon, Button} from "semantic-ui-react";
 import Location from "./Location";
 import Places from "./Places";
+import Time from "./Time";
 
 export default function Menus(props: {
-    children: any, resultCallback(results: google.maps.places.PlaceResult[] | null): void;
+    children: any, time: number, resultCallback(results: google.maps.places.PlaceResult[] | null): void;
 }) {
     const [sideBarVisible, setSideBarVisible] = useState<boolean>(true);
     const [location, setLocation] = useState<string>('');
@@ -24,9 +25,7 @@ export default function Menus(props: {
                             <div><Location onLocationChange={setLocation}/></div>
                         </Grid.Row>
                         <Grid.Row><Places location={location} resultCallback={props.resultCallback}/></Grid.Row>
-                        <Grid.Row>Shop</Grid.Row>
-                        <Grid.Row>test</Grid.Row>
-                        <Grid.Row>Suggestie</Grid.Row>
+                        <Grid.Row><Time duration={props.time}/></Grid.Row>
                     </Grid>
                 </Sidebar>
                 <Sidebar.Pusher>
