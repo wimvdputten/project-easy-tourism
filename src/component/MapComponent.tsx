@@ -1,7 +1,8 @@
 import React, {useState} from 'react'
-import {DirectionsRenderer, GoogleMap, Marker} from '@react-google-maps/api';
+import {DirectionsRenderer, GoogleMap, Marker, Polygon} from '@react-google-maps/api';
 import {Button, Card, Modal, Image, List, Grid, Checkbox, Label, Header} from "semantic-ui-react";
 import arrayMove from "array-move";
+import {axiosGetCrowded, getCrowdedJson} from "../api/axios";
 
 
 const containerStyle = {
@@ -196,6 +197,51 @@ function MapComponent(props: { places: google.maps.places.PlaceResult[] | null }
         return markers;
     }
 
+    function loadPolygons() {
+        const polygons: any[] = [];
+        const crowdedJson = getCrowdedJson();
+        for (const item of crowdedJson) {
+            const options = {
+                fillColor: "lightblue",
+                fillOpacity: 0.20,
+                strokeColor: "red",
+                strokeOpacity: 0.80,
+                strokeWeight: 2,
+                clickable: false,
+                draggable: false,
+                editable: false,
+                geodesic: false,
+                zIndex: 1
+            }
+            if (item.crowd_level === -1) {
+                options.fillColor = 'lightgreen';
+                options.strokeColor = 'green';
+            }
+            if (item.crowd_level === 0) {
+                options.fillColor = 'lightorange';
+                options.strokeColor = 'orange';
+            }
+            if (item.crowd_level > 0) {
+                options.fillColor = 'lightRed';
+                options.strokeColor = 'red';
+            }
+
+
+            const path = item.geo.coordinates.map((list: any) => {
+                return list.map((entry: any) => {
+                    return {lat: entry[1], lng: entry[0]}
+                });
+            })
+            polygons.push(
+                <Polygon
+                    paths={path}
+                    options={options}
+                />
+            )
+        }
+        return polygons;
+    }
+
     function getRequest(): google.maps.DistanceMatrixRequest {
         const destinations = [];
         const origins = [];
@@ -268,7 +314,10 @@ function MapComponent(props: { places: google.maps.places.PlaceResult[] | null }
             }
             const item = timelineItems[i];
             if (item?.geometry?.location) {
-                const waypoint = { stopover: true, location : {lat: item.geometry.location.lat(), lng: item.geometry.location.lng()}}
+                const waypoint = {
+                    stopover: true,
+                    location: {lat: item.geometry.location.lat(), lng: item.geometry.location.lng()}
+                }
                 waypoints.push(waypoint);
             }
         }
@@ -298,6 +347,7 @@ function MapComponent(props: { places: google.maps.places.PlaceResult[] | null }
                 zoom={12}
             >
                 {loadMarkers()}
+                {loadPolygons()}
                 {directions && <DirectionsRenderer directions={directions}/>}
 
                 <></>
