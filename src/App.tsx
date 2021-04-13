@@ -15,7 +15,7 @@ function App() {
                 libraries={["places"]}
                 googleMapsApiKey={apiKey ? apiKey : ''}
             >
-                <div>
+                <div style={{margin: '20px'}}>
                     <Menus resultCallback={setPlaces} time={time}><Grid style={{height: '100vh'}}>
                         <Grid.Row style={{height: '80%'}}>
                             <div><MapComponent places={places} timeCallBack={setTime}/></div>

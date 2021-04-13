@@ -6,8 +6,8 @@ import {axiosGetCrowded, getCrowdedJson} from "../api/axios";
 
 
 const containerStyle = {
-    width: '1550px',
-    height: '800px'
+    width: '1800px',
+    height: '500px'
 };
 
 function MapComponent(props: { places: google.maps.places.PlaceResult[] | null, timeCallBack(time: number): void; }) {
@@ -17,6 +17,8 @@ function MapComponent(props: { places: google.maps.places.PlaceResult[] | null, 
     const [startItem, setStartItem] = useState<string | undefined>(undefined);
     const [distanceItems, setDistanceItems] = useState<any[]>([]);
     const [directions, setDirections] = useState<google.maps.DirectionsResult | null>(null);
+    const [statePhotos, setStatePhotos] = useState<any[]>([null]);
+
 
     React.useEffect(() => {
         let timeSpent = 0;
@@ -54,11 +56,16 @@ function MapComponent(props: { places: google.maps.places.PlaceResult[] | null, 
         }
     }
 
-    async function getPhoto(photos: google.maps.places.PlacePhoto[] | undefined) {
-        if (photos?.length) {
-            return await photos[0] ? photos[0].getUrl({maxHeight: 500, maxWidth: 500}) : ''
+    async function loadImage(place: google.maps.places.PlaceResult) {
+        if (place.photos?.length && place.place_id) {
+            if (place.photos[0]) {
+                const url = await place.photos[0].getUrl({maxHeight: 200, maxWidth: 200})
+                const list = statePhotos;
+                // @ts-ignore
+                list[place.place_id] = url;
+                setStatePhotos(list);
+            }
         }
-        return '';
     }
 
     function cardItems() {
@@ -71,11 +78,12 @@ function MapComponent(props: { places: google.maps.places.PlaceResult[] | null, 
                 })) {
                     continue;
                 }
-
+                loadImage(place);
                 items.push(
                     <List.Item><Card>
-                        <Image
-                            src={getPhoto(place.photos)}
+                        <Image size={"small"}
+                            // @ts-ignore
+                            src={statePhotos[place.place_id]}
                             wrapped ui={false}/>
                         <Card.Content>
                             <Card.Header>{place.name}</Card.Header>
@@ -114,14 +122,6 @@ function MapComponent(props: { places: google.maps.places.PlaceResult[] | null, 
                     {cardItems()}
                 </List>
             </Modal.Content>
-            <Modal.Actions>
-                <Button negative>
-                    Disagree
-                </Button>
-                <Button positive>
-                    Agree
-                </Button>
-            </Modal.Actions>
         </Modal>
     )
 
@@ -143,7 +143,9 @@ function MapComponent(props: { places: google.maps.places.PlaceResult[] | null, 
                 <Grid.Column>
                     <Card>
                         <Image
-                            src={getPhoto(place.photos)}
+                            size={"small"}
+                            // @ts-ignore
+                            src={statePhotos[place.place_id]}
                             wrapped ui={false}/>
                         <Card.Content>
                             <Card.Header>{place.name}</Card.Header>
