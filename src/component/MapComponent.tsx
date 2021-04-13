@@ -365,7 +365,7 @@ function MapComponent(props: { places: google.maps.places.PlaceResult[] | null, 
 
                 <></>
             </GoogleMap>
-            <div style={{marginLeft: '50px'}}>
+            <div style={{marginLeft: '50px', overflow: 'scroll'}}>
                 <h3>Timeline</h3>
                 <Button onClick={() => sortItems()}>Sort timeline</Button>
                 <Button onClick={() => getDirections()}>Get directions</Button>

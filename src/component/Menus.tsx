@@ -34,7 +34,6 @@ export default function Menus(props: {
                             <Button icon onClick={() => setSideBarVisible(!sideBarVisible)}>
                                 <Icon name={sideBarVisible ? 'arrow left' : 'bars'} size={"large"}/>
                             </Button>
-                            <div style={{float: 'right', paddingRight: '40px'}}><h1>Test</h1></div>
                         </div>
                         {props?.children}
                     </div>
